@@ -626,7 +626,7 @@ TxCommit (Thread* Self)
     AVPair* e;
     AVPair* End = Self->wrSet.put;
     for (e = Self->wrSet.List; e != End; e = e->Next) {
-        *(e->Addr) = e->Valu;
+//        *(e->Addr) = e->Valu;
         remove_lock(e->Addr);
     }
 
