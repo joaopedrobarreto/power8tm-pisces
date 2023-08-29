@@ -14,10 +14,10 @@ CFLAGS  := -g -w -O2
 #CFLAGS  += -m32
 LD      := gcc
 
-LIBNOREC := libnorec.a
+LIBpisces := libpisces.a
 
 SRCS := \
-	norec.c \
+	pisces.c \
 #
 OBJS := ${SRCS:.c=.o}
 
@@ -36,21 +36,21 @@ default: lazy
 
 .PHONY: clean
 clean:
-	$(RM) $(LIBNOREC) $(OBJS)
+	$(RM) $(LIBpisces) $(OBJS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(LIBNOREC): $(OBJS)
+$(LIBpisces): $(OBJS)
 	$(AR) cru $@ $^
 	$(RANLIB) $@
 
 .PHONY: lazy
-lazy: $(LIBNOREC)
+lazy: $(LIBpisces)
 
 .PHONY: otm
 otm: CFLAGS += -m32
-otm: $(LIBNOREC)
+otm: $(LIBpisces)
 
 
 # ==============================================================================
