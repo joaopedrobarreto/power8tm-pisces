@@ -476,16 +476,32 @@ int remove_lock(volatile intptr_t* addr) {
 
     while (*l_a) {
         lock_t *l_b = (*l_a);
-        if (l_b && l_b->avp->Addr == addr)
+        if (l_b->avp->Addr == addr)
         {
-            while (CAS(l_a, l_b, l_b->next) != l_b);
-            //TODO gc (lock entry and AVPair)
-            return 1;
+            if (CAS(l_a, l_b, l_b->next) == l_b)
+                //TODO gc (lock entry and AVPair)
+                return 1;
+            else
+                continue;
         }
         else
             l_a = &(l_b->next);
     }
     return 0;
+
+    //     while (*l_a) {
+    //     lock_t *l_b = (*l_a);
+    //     if (l_b && l_b->avp->Addr == addr)
+    //     {
+    //         while (CAS(l_a, l_b, l_b->next) != l_b);
+    //         //TODO gc (lock entry and AVPair)
+    //         return 1;
+    //     }
+    //     else
+    //         l_a = &(l_b->next);
+    // }
+    // return 0;
+
 }
 
 
