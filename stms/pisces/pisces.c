@@ -324,10 +324,10 @@ txReset (Thread* Self)
     Self->wrSet.tail = NULL;
 
     /* Pisces specific */
-    Self->isActive = 1;
+    Self->isActive = 0;
+    Self->inCritical = 0;
     MEMBARLDLD();
-    Self->startTS = LOCK->value;
-    Self->endTS = -1;
+
 
     // Self->wrSet.BloomFilter = 0;
     // Self->rdSet.put = Self->rdSet.List;
@@ -547,7 +547,13 @@ void
 TxStart (Thread* Self, sigjmp_buf* envPtr)
 {
     txReset(Self);
-    MEMBARLDLD();
+
+    /* Pisces specific */
+    Self->isActive = 1;
+    Self->startTS = LOCK->value;
+    Self->endTS = -1;
+
+    ˙MEMBARLDLD();
 
     Self->envPtr= envPtr;
     Self->Starts++;
