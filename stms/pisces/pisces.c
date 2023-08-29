@@ -623,7 +623,7 @@ TxCommit (Thread* Self)
         if (threads[i]) {
             while (threads[i]->isActive && threads[i]->startTS < Self->endTS)
                 {/* wait */
-                    printf("Thread %d waiting in txCommit\n", Self->UniqID);
+                    // printf("Thread %d waiting in txCommit\n", Self->UniqID);
                 }
         }
     }
