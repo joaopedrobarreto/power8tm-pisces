@@ -187,6 +187,8 @@ MakeList (long sz, Thread* Self)
     }
     Tail->Next = NULL;
 
+//TODO: onde está definido List->end e put???
+
     return List;
 }
 
@@ -466,7 +468,6 @@ lock_t *get_lock(volatile intptr_t* addr) {
             return l;
         l = l->next;
     }
-
     return NULL;
 }
 
@@ -560,6 +561,13 @@ TxStart (Thread* Self, sigjmp_buf* envPtr)
     Self->Starts++;
 }
 
+assertNoLocks() {
+    for (int i=0; i<_TABSZ; i++) {
+        assert(lock_tab[i] == 0);
+    }
+    printf("assertNoLocks OK\n");
+}
+
 int
 TxCommit (Thread* Self)
 {
@@ -609,6 +617,9 @@ TxCommit (Thread* Self)
     //TODO pflush(copy.source.content)
 
     txCommitReset(Self);
+
+    assertNoLocks();
+
     return 1;
 
     TxAbort(Self);
