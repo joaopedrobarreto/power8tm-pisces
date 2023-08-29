@@ -231,15 +231,15 @@ ExtendList (AVPair* tail)
 //     }
 // }
 
-// void
-// TxOnce ()
-// {
-//     LOCK = (aligned_type_t*) malloc(sizeof(aligned_type_t));
-//     LOCK->value = 0;
+void
+TxOnce ()
+{
+    LOCK = (aligned_type_t*) malloc(sizeof(aligned_type_t));
+    LOCK->value = 0;
 
-//     pthread_key_create(&global_key_self, NULL); /* CCM: do before we register handler */
+    pthread_key_create(&global_key_self, NULL); /* CCM: do before we register handler */
 
-// }
+}
 
 
 void
