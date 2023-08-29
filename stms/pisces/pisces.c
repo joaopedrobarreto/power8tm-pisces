@@ -27,6 +27,12 @@
 // __INLINE__ long ReadSetCoherent (Thread*);
 
 
+# define delay_for_pm 25 //number that gives a latency between 0.18 usec and 0.5 usec
+# define emulate_pm_slowdown(){\
+    for(volatile int i=0;i<delay_for_pm;i++);\
+}\
+
+
 enum pisces_config {
     pisces_INIT_WRSET_NUM_ENTRY = 1024,
     // pisces_INIT_RDSET_NUM_ENTRY = 8192,
@@ -186,8 +192,6 @@ MakeList (long sz, Thread* Self)
         Tail = e;
     }
     Tail->Next = NULL;
-
-//TODO: onde está definido List->end e put???
 
     return List;
 }
@@ -490,20 +494,6 @@ int remove_lock(volatile intptr_t* addr) {
             l_a = &(l_b->next);
     }
     return 0;
-
-    //     while (*l_a) {
-    //     lock_t *l_b = (*l_a);
-    //     if (l_b && l_b->avp->Addr == addr)
-    //     {
-    //         while (CAS(l_a, l_b, l_b->next) != l_b);
-    //         //TODO gc (lock entry and AVPair)
-    //         return 1;
-    //     }
-    //     else
-    //         l_a = &(l_b->next);
-    // }
-    // return 0;
-
 }
 
 
@@ -554,8 +544,10 @@ TxLoad (Thread* Self, volatile intptr_t* addr)
     if (wtx == Self)
         return l->avp->Valu;
     
-    while (wtx->inCritical)
-        printf("Thread %d waiting in txLoad\n", Self->UniqID);
+    while (wtx->inCritical) {/* wait */
+        // printf("Thread %d waiting in txLoad\n", Self->UniqID);
+    }
+        
 
     if (wtx->endTS <= Self->startTS)
         return l->avp->Valu;
@@ -601,11 +593,16 @@ TxCommit (Thread* Self)
 
     /* stage 1: persist stage */
 
-    //TODO flush wr log
+    //*Emulate* flush wr log
+    AVPair* e;
+    AVPair* End = Self->wrSet.put;
+    for (e = Self->wrSet.List; e != End; e = e->Next) {
+        emulate_pm_slowdown();
+    }
 
     Self->wrSet.persistTS = LOCK;
-
-    //TODO flush persistTS
+    //*Emulate* flush persistTS
+    emulate_pm_slowdown();
 
     /* stage 2: concurrency commit stage */
 
@@ -628,23 +625,20 @@ TxCommit (Thread* Self)
         }
     }
 
-    AVPair* e;
-    AVPair* End = Self->wrSet.put;
+    End = Self->wrSet.put;
     for (e = Self->wrSet.List; e != End; e = e->Next) {
        *(e->Addr) = e->Valu;
-        remove_lock(e->Addr);
+       //*Emulate* pflush(copy.source.content)
+       emulate_pm_slowdown();
+       remove_lock(e->Addr);
     }
-
-    //TODO pflush(copy.source.content)
 
     txCommitReset(Self);
 
-    // assertNoLocks();
-
     return 1;
 
-    TxAbort(Self);
-    return 0;
+    // TxAbort(Self);
+    // return 0;
 }
 
 int
