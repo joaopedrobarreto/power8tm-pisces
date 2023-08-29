@@ -331,7 +331,11 @@ int set_remove(TM_ARGDECL long val)
     res = (local_exec_mode == 3 || local_exec_mode == 1 || local_exec_mode == 4) ? priv_remove_item_stm(TM_ARG val) : priv_remove_item_htm(TM_ARG val);
     TM_END();
 
-    return res;
+  /*debug joao*/ 
+  if (res==0)
+    printf("set_remove returned 0\n");
+  
+  return res;
 }
 
 long set_contains(TM_ARGDECL long  val)
