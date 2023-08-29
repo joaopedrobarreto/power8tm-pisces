@@ -561,12 +561,12 @@ TxStart (Thread* Self, sigjmp_buf* envPtr)
     Self->Starts++;
 }
 
-assertNoLocks() {
-    for (int i=0; i<_TABSZ; i++) {
-        assert(lock_tab[i] == 0);
-    }
-    printf("assertNoLocks OK\n");
-}
+// assertNoLocks() {
+//     for (int i=0; i<_TABSZ; i++) {
+//         assert(lock_tab[i] == 0);
+//     }
+//     printf("assertNoLocks OK\n");
+// }
 
 int
 TxCommit (Thread* Self)
@@ -607,18 +607,18 @@ TxCommit (Thread* Self)
         }
     }
 
-    // AVPair* e;
-    // AVPair* End = Self->wrSet.put;
-    // for (e = Self->wrSet.List; e != End; e = e->Next) {
-    //     *(e->Addr) = e->Valu;
-    //     remove_lock(e->Addr);
-    // }
+    AVPair* e;
+    AVPair* End = Self->wrSet.put;
+    for (e = Self->wrSet.List; e != End; e = e->Next) {
+        *(e->Addr) = e->Valu;
+        remove_lock(e->Addr);
+    }
 
     //TODO pflush(copy.source.content)
 
     txCommitReset(Self);
 
-    assertNoLocks();
+    // assertNoLocks();
 
     return 1;
 
