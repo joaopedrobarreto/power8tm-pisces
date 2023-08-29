@@ -438,7 +438,7 @@ TxAbort (Thread* Self)
   Self->Aborts++;
 
   printf("Aborted\n");
-  
+
   // unsigned long wait;
   // volatile int j;
   // Self->cm_seed ^= (Self->cm_seed << 17);
@@ -554,7 +554,8 @@ TxLoad (Thread* Self, volatile intptr_t* addr)
     if (wtx == Self)
         return l->avp->Valu;
     
-    while (wtx->inCritical);
+    while (wtx->inCritical)
+        printf("Thread %d waiting in txLoad\n", Self->UniqID);
 
     if (wtx->endTS <= Self->startTS)
         return l->avp->Valu;
@@ -621,7 +622,9 @@ TxCommit (Thread* Self)
     for (int i = 0; i < MAX_THREADS; i++) {
         if (threads[i]) {
             while (threads[i]->isActive && threads[i]->startTS < Self->endTS)
-                {/* wait */}
+                {/* wait */
+                    printf("Thread %d waiting in txCommit\n", Self->UniqID);
+                }
         }
     }
 
