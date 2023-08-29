@@ -347,10 +347,6 @@ long set_contains(TM_ARGDECL long  val)
     res = (local_exec_mode == 3 || local_exec_mode == 1 || local_exec_mode == 4) ? priv_lookup_stm(TM_ARG val) : priv_lookup_htm(TM_ARG val);
     TM_END();
 
-  /*debug joao*/ 
-  if (res==0)
-    printf("set_contains returned 0\n");
-
     return res;
 }
 
@@ -384,6 +380,10 @@ void *test(void *data)
         val = (rand_r(&mySeed) % range) + 1;
         if(set_add(TM_ARG val) == 0) {
           val = -1;
+        }
+        else {
+          if (set_contains(TM_ARG val)==0)
+            printf("after adding element, counldn't find it\n");
         }
       } else {
         set_remove(TM_ARG  val);
