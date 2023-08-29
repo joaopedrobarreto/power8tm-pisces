@@ -328,11 +328,6 @@ txReset (Thread* Self)
     Self->inCritical = 0;
     MEMBARLDLD();
 
-
-    // Self->wrSet.BloomFilter = 0;
-    // Self->rdSet.put = Self->rdSet.List;
-    // Self->rdSet.tail = NULL;
-
     //TODO: free locks and AVpairs, careful with gc rules of pisces
 
 }
@@ -436,20 +431,26 @@ static __inline__ unsigned long long rdtsc(void)
 void
 TxAbort (Thread* Self)
 {
-    Self->Retries++;
-    Self->Aborts++;
+  txReset(Self);
+  Self->Retries++;
+  Self->Aborts++;
 
-    // unsigned long wait;
-    // volatile int j;
-    // Self->cm_seed ^= (Self->cm_seed << 17);
-    // Self->cm_seed ^= (Self->cm_seed >> 13);
-    // Self->cm_seed ^= (Self->cm_seed << 5);
-    // wait = Self->cm_seed % Self->cm_backoff;
-	// //printf("MAX_BACKOFF is %ld, wait is %ld, seed is %ld and backoff is %ld\n",MAX_BACKOFF,wait,Self->cm_seed,Self->cm_backoff);
-    // for (j = 0; j < wait; j++);
-    // if (Self->cm_backoff < MAX_BACKOFF)
-    //    Self->cm_backoff <<= 1;
+  // unsigned long wait;
+  // volatile int j;
+  // Self->cm_seed ^= (Self->cm_seed << 17);
+  // Self->cm_seed ^= (Self->cm_seed >> 13);
+  // Self->cm_seed ^= (Self->cm_seed << 5);
+  // wait = Self->cm_seed % Self->cm_backoff;
+  // //printf("MAX_BACKOFF is %ld, wait is %ld, seed is %ld and backoff is %ld\n",MAX_BACKOFF,wait,Self->cm_seed,Self->cm_backoff);
+  // for (j = 0; j < wait; j++);
+  // if (Self->cm_backoff < MAX_BACKOFF)
+  //    Self->cm_backoff <<= 1;
 
+  // Releases all locks held by this tx
+  AVPair *e;
+  AVPair *End = Self->wrSet.put;
+  for (e = Self->wrSet.List; e != End; e = e->Next)
+        remove_lock(e->Addr);
 
     SIGLONGJMP(*Self->envPtr, 1);
     ASSERT(0);
