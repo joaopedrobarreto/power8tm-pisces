@@ -553,7 +553,7 @@ TxStart (Thread* Self, sigjmp_buf* envPtr)
     Self->startTS = LOCK->value;
     Self->endTS = -1;
 
-    ˙MEMBARLDLD();
+    MEMBARLDLD();
 
     Self->envPtr= envPtr;
     Self->Starts++;
