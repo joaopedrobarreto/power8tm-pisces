@@ -437,6 +437,8 @@ TxAbort (Thread* Self)
   Self->Retries++;
   Self->Aborts++;
 
+  printf("Aborted\n");
+  
   // unsigned long wait;
   // volatile int j;
   // Self->cm_seed ^= (Self->cm_seed << 17);

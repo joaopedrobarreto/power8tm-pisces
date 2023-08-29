@@ -382,6 +382,7 @@ void *test(void *data)
           val = -1;
         }
         else {
+          /* debug joao */
           if (set_contains(TM_ARG val)==0)
             printf("after adding element, counldn't find it\n");
         }
